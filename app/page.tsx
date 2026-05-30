@@ -1109,8 +1109,8 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-12 items-center">
               
-              {/* Left Content Column */}
-              <div className="lg:col-span-7 flex flex-col items-start text-left z-10 scale-90 sm:scale-100 origin-left">
+              {/* Centered Content Column */}
+              <div className="lg:col-span-12 flex flex-col items-center text-center z-10 scale-90 sm:scale-100">
               
               {/* Google Ratings Trust Tag */}
               <motion.div 
@@ -1141,20 +1141,20 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="space-y-4"
+                className="space-y-4 flex flex-col items-center"
               >
-                <span className="text-xs md:text-sm font-bold tracking-widest text-blue-600 uppercase block font-mono">
+                <span className="text-xs md:text-sm font-bold tracking-widest text-blue-600 uppercase block font-mono text-center">
                   {lang === 'en' ? '✦ TRUSTED JAN SEVA KENDRA & CYBER CAFE ✦' : '✦ विश्वसनीय जन सेवा केंद्र एवं साइबर कैफे ✦'}
                 </span>
                 
-                <h1 className={cn("text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-none transition-colors duration-200", darkMode ? "text-white" : "text-slate-900")}>
+                <h1 className={cn("text-4xl sm:text-5xl lg:text-7xl font-black tracking-tight leading-none transition-colors duration-200 text-center max-w-4xl", darkMode ? "text-white" : "text-slate-900")}>
                   OM ONLINE WORKS <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-rose-500 to-blue-600">
                     ओम ऑनलाइन वर्क्स
                   </span>
                 </h1>
 
-                <p className={cn("text-base sm:text-lg max-w-xl font-normal mt-4 transition-colors duration-200", darkMode ? "text-slate-200" : "text-slate-700")}>
+                <p className={cn("text-base sm:text-lg lg:text-xl max-w-2xl font-normal mt-4 transition-colors duration-200 text-center", darkMode ? "text-slate-200" : "text-slate-700")}>
                   {lang === 'en' 
                     ? 'Government Services, Online Applications, Banking Services, Aadhaar Assistance, Passport Services, Income Tax filing, and more — All Under One Trustworthy Roof.'
                     : 'सरकारी सेवाएं, ऑनलाइन आवेदन, बैंकिंग सेवाएं, आधार सहायता, पासपोर्ट आवेदन, आयकर और जीएसटी सेवाएं — सब कुछ एक ही छत के नीचे बिल्कुल सुरक्षित रूप से।'
@@ -1167,7 +1167,7 @@ export default function HomePage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="grid grid-cols-2 gap-x-4 gap-y-3 my-8 w-full max-w-lg"
+                className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-3 my-8 w-full max-w-3xl place-items-center"
               >
                 {[
                   { labelEn: "Trusted Service", labelHi: "विश्वसनीय सेवा" },
@@ -1177,7 +1177,7 @@ export default function HomePage() {
                 ].map((item, index) => (
                   <div key={index} className="flex items-center gap-2">
                     <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
-                    <span className={cn("text-xs md:text-sm font-semibold transition-colors duration-200", darkMode ? "text-slate-200" : "text-slate-700")}>
+                    <span className={cn("text-xs md:text-sm font-semibold transition-colors duration-200 text-center", darkMode ? "text-slate-200" : "text-slate-700")}>
                       {lang === 'en' ? item.labelEn : item.labelHi}
                     </span>
                   </div>
@@ -1189,12 +1189,12 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 25 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
-                className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
+                className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto mt-4"
               >
                 <a
                   href="#services"
                   className={cn(
-                    "inline-flex items-center justify-center gap-2 bg-transparent px-8 py-4 rounded-xl text-sm font-bold border-2 active:scale-[0.98] transition-all duration-300",
+                    "inline-flex items-center justify-center gap-2 bg-transparent px-8 py-4 rounded-xl text-sm font-bold border-2 active:scale-[0.98] transition-all duration-300 w-full sm:w-auto",
                     darkMode 
                       ? "border-orange-500 text-orange-400 hover:bg-orange-500/10 shadow-lg shadow-orange-500/5" 
                       : "border-orange-600 text-orange-600 hover:bg-orange-600/5 shadow-lg shadow-orange-600/5"
@@ -1208,7 +1208,7 @@ export default function HomePage() {
                   href="https://wa.me/919456411569"
                   target="_blank"
                   className={cn(
-                    "inline-flex items-center justify-center gap-2 bg-transparent font-bold text-sm px-8 py-4 rounded-xl border-2 active:scale-[0.98] transition-all duration-300",
+                    "inline-flex items-center justify-center gap-2 bg-transparent font-bold text-sm px-8 py-4 rounded-xl border-2 active:scale-[0.98] transition-all duration-300 w-full sm:w-auto",
                     darkMode 
                       ? "border-emerald-500 text-emerald-400 hover:bg-emerald-500/10 shadow-lg shadow-emerald-500/5" 
                       : "border-emerald-600 text-emerald-600 hover:bg-emerald-600/5 shadow-lg shadow-emerald-600/5"
@@ -1217,29 +1217,6 @@ export default function HomePage() {
                   <Send className={cn("w-4 h-4", darkMode ? "text-emerald-400" : "text-emerald-600")} />
                   <span>{lang === 'en' ? 'Query on WhatsApp' : 'व्हाट्सएप पर पूछें'}</span>
                 </a>
-              </motion.div>
-            </div>
-
-            {/* Right Side Illustration - Transparent/Beautiful Image container */}
-            <div className="lg:col-span-5 flex items-center justify-center relative">
-              <div className="absolute inset-0 bg-gradient-to-tr from-orange-300/10 to-blue-300/10 rounded-full filter blur-xl scale-95"></div>
-              
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8 }}
-                className="relative max-w-md md:max-w-full rounded-2xl p-4 overflow-hidden"
-              >
-                {/* 100% transparency layout with custom generated image */}
-                <Image
-                  src="/src/assets/images/hero_illustration_1780151926286.png"
-                  alt="OM Online Works Digital Services"
-                  width={600}
-                  height={500}
-                  className="w-full h-auto object-contain rounded-2xl transform hover:scale-[1.02] transition-transform duration-500 drop-shadow-2xl"
-                  priority
-                  referrerPolicy="no-referrer"
-                />
               </motion.div>
             </div>
 
