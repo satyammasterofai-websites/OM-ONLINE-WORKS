@@ -1081,7 +1081,7 @@ export default function HomePage() {
       <section 
         id="home" 
         className={cn(
-          "relative z-0 w-full overflow-hidden transition-colors duration-300 min-h-[100dvh] md:min-h-0 md:aspect-video flex items-center justify-center pt-24 pb-12 md:py-0",
+          "relative z-0 w-full overflow-hidden transition-colors duration-300 aspect-video flex items-center justify-center pt-24 pb-12 md:py-0 min-h-[500px]",
           darkMode ? "text-white" : "text-slate-900"
         )}
       >
@@ -1194,10 +1194,10 @@ export default function HomePage() {
                 <a
                   href="#services"
                   className={cn(
-                    "inline-flex items-center justify-center gap-2 bg-transparent px-8 py-4 rounded-xl text-sm font-bold border-2 active:scale-[0.98] transition-all duration-300 w-full sm:w-auto",
+                    "inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl text-sm font-bold border-transparent active:scale-[0.98] transition-all duration-300 w-full sm:w-auto",
                     darkMode 
-                      ? "border-orange-500 text-orange-400 hover:bg-orange-500/10 shadow-lg shadow-orange-500/5" 
-                      : "border-orange-600 text-orange-600 hover:bg-orange-600/5 shadow-lg shadow-orange-600/5"
+                      ? "bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/20" 
+                      : "bg-orange-600 text-white hover:bg-orange-700 shadow-lg shadow-orange-600/20"
                   )}
                 >
                   <Calendar className="w-4 h-4" />
@@ -1208,13 +1208,13 @@ export default function HomePage() {
                   href="https://wa.me/919456411569"
                   target="_blank"
                   className={cn(
-                    "inline-flex items-center justify-center gap-2 bg-transparent font-bold text-sm px-8 py-4 rounded-xl border-2 active:scale-[0.98] transition-all duration-300 w-full sm:w-auto",
+                    "inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl text-sm font-bold border-transparent active:scale-[0.98] transition-all duration-300 w-full sm:w-auto",
                     darkMode 
-                      ? "border-emerald-500 text-emerald-400 hover:bg-emerald-500/10 shadow-lg shadow-emerald-500/5" 
-                      : "border-emerald-600 text-emerald-600 hover:bg-emerald-600/5 shadow-lg shadow-emerald-600/5"
+                      ? "bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20" 
+                      : "bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-600/20"
                   )}
                 >
-                  <Send className={cn("w-4 h-4", darkMode ? "text-emerald-400" : "text-emerald-600")} />
+                  <Send className="w-4 h-4 text-white" />
                   <span>{lang === 'en' ? 'Query on WhatsApp' : 'व्हाट्सएप पर पूछें'}</span>
                 </a>
               </motion.div>
