@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[A-Za-z0-9_\\-]+$');
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == "satyamvermag3@gmail.com" ||
+        request.auth.token.email == "dsoni4715@gmai.com" ||
+        request.auth.token.email == "dsoni4715@gmail.com" ||
+        request.auth.token.email == "satyammasterofai@gmail.com"
+      );
+    }
+
+    function isOwner(appointment) {
+      return isSignedIn() && appointment.userId == request.auth.uid;
+    }
+
+    function isValidAppointment(data) {
+      return data.keys().hasAll(['id', 'serviceName', 'customerName', 'phone', 'status'])
+        && data.id is string && data.id.size() <= 100
+        && data.serviceName is string && data.serviceName.size() <= 200
+        && data.customerName is string && data.customerName.size() <= 150
+        && data.phone is string && data.phone.size() <= 20
+        && data.status is string && (data.status == "Pending Review" || data.status == "Processing" || data.status == "Documents Verified" || data.status == "Completed");
+    }
+
+    match /appointments/{appointmentId} {
+      allow get: if isValidId(appointmentId) && (isAdmin() || isOwner(resource.data));
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isValidId(appointmentId) && isValidAppointment(request.resource.data);
+      allow update: if isValidId(appointmentId) && isAdmin() && isValidAppointment(request.resource.data);
+      allow delete: if isValidId(appointmentId) && isAdmin();
+    }
+  }
+}

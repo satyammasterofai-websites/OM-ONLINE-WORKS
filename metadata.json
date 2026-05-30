@@ -1,0 +1,6 @@
+{
+  "name": "OM ONLINE WORKS",
+  "description": "Trusted Jan Seva Kendra & Cyber Cafe in Saharanpur, UP. Digital Government Services, Caste/Income/Residence Certificates, Online Form Filling, Passport, ITR, GST, PF, and Banking services.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "Appointment": {
+      "title": "Appointment",
+      "description": "Customer appointment booking details and uploaded documents",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique key for tracking"
+        },
+        "serviceName": {
+          "type": "string",
+          "description": "Name of service booked"
+        },
+        "customerName": {
+          "type": "string",
+          "description": "Name of client"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Mobile number"
+        },
+        "email": {
+          "type": "string",
+          "description": "Client email"
+        },
+        "date": {
+          "type": "string",
+          "description": "Date of appointment"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Pending Review", "Processing", "Documents Verified", "Completed"],
+          "description": "Status of the appointment"
+        },
+        "files": {
+          "type": "array",
+          "description": "List of base64 document payloads"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional notes from client"
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of the user who booked"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last updated timestamp"
+        }
+      },
+      "required": ["id", "serviceName", "customerName", "phone", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "appointments/{appointmentId}": {
+      "schema": "Appointment",
+      "description": "Collection of appointments and uploaded files"
+    }
+  }
+}
