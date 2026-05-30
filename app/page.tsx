@@ -1081,7 +1081,7 @@ export default function HomePage() {
       <section 
         id="home" 
         className={cn(
-          "relative z-0 w-full overflow-hidden transition-colors duration-300 aspect-video flex items-center justify-center pt-24 pb-12 md:py-0 min-h-[500px]",
+          "relative z-0 w-full overflow-hidden transition-colors duration-300 min-h-[100svh] md:min-h-0 md:aspect-video flex items-center justify-center pt-32 pb-24 md:py-0",
           darkMode ? "text-white" : "text-slate-900"
         )}
       >
