@@ -7,7 +7,7 @@ import {
   Search, Menu, X, Globe, Sun, Moon, CheckCircle2, Phone, 
   MapPin, Clock, Mail, FileText, Award, Users, Check, 
   Briefcase, Calendar, Shield, Star, Upload, Sparkles, 
-  ChevronDown, PhoneCall, ArrowUp, Send, Trash2, HelpCircle
+  ChevronDown, PhoneCall, ArrowUp, Send, Trash2, HelpCircle, Plus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -447,6 +447,12 @@ export default function HomePage() {
   // Business Open status tracker
   const [isOpenNow, setIsOpenNow] = useState<boolean>(true);
 
+  // Gallery and Team remote state
+  const [dbGalleryImages, setDbGalleryImages] = useState<any[]>([]);
+  const [dbTeamProfiles, setDbTeamProfiles] = useState<{ [key: string]: string }>({});
+  const [uploadingGallery, setUploadingGallery] = useState<boolean>(false);
+  const [uploadingProfile, setUploadingProfile] = useState<string | null>(null);
+
   // Generate responsive visual refs
   const headerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -655,6 +661,31 @@ export default function HomePage() {
     }
   }, [darkMode]);
 
+  // Gallery and Team remote state unsubs
+  useEffect(() => {
+    const unsubs: (() => void)[] = [];
+    try {
+      const gRef = collection(db, "galleryImages");
+      unsubs.push(onSnapshot(gRef, (snapshot) => {
+        const list: any[] = [];
+        snapshot.forEach(docSnap => list.push({ id: docSnap.id, ...docSnap.data() }));
+        // sort by newest
+        list.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setDbGalleryImages(list);
+      }, (e) => console.log('Error fetching gallery:', e.message)));
+
+      const tRef = collection(db, "teamProfiles");
+      unsubs.push(onSnapshot(tRef, (snapshot) => {
+        const hash: any = {};
+        snapshot.forEach(docSnap => { hash[docSnap.id] = docSnap.data().base64Image; });
+        setDbTeamProfiles(hash);
+      }, (e) => console.log('Error fetching team:', e.message)));
+    } catch(e){}
+    return () => {
+      unsubs.forEach(fn => fn());
+    };
+  }, []);
+
   // Handle Drag Events
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -856,6 +887,82 @@ export default function HomePage() {
       srv.descHi.includes(searchQuery);
     return matchesCategory && matchesQuery;
   });
+
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = document.createElement('img');
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          // Max dimension 800px
+          const maxDim = 800;
+          if (width > height && width > maxDim) {
+            height *= maxDim / width;
+            width = maxDim;
+          } else if (height > maxDim) {
+            width *= maxDim / height;
+            height = maxDim;
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.8));
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isAdminUser) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingGallery(true);
+    try {
+      const base64Image = await compressImage(file);
+      const newId = `gal_${Date.now()}`;
+      const ref = doc(db, 'galleryImages', newId);
+      await setDoc(ref, {
+        id: newId,
+        titleEn: 'Admin Upload',
+        titleHi: 'एडमिन अपलोड',
+        cat: 'Gallery',
+        base64Image,
+        createdAt: new Date().toISOString()
+      });
+    } catch (err) {
+      console.error("Gallery upload error", err);
+    } finally {
+      setUploadingGallery(false);
+    }
+  };
+
+  const handleProfileUpload = async (e: React.ChangeEvent<HTMLInputElement>, profileId: string) => {
+    if (!isAdminUser) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingProfile(profileId);
+    try {
+      const base64Image = await compressImage(file);
+      const ref = doc(db, 'teamProfiles', profileId);
+      await setDoc(ref, {
+        id: profileId,
+        base64Image,
+        updatedAt: new Date().toISOString()
+      });
+    } catch (err) {
+      console.error("Profile upload error", err);
+    } finally {
+      setUploadingProfile(null);
+    }
+  };
 
   return (
     <div className={cn("min-h-screen font-sans", darkMode ? "bg-slate-950 text-gray-100" : "bg-gray-50 text-gray-900")}>
@@ -1761,8 +1868,26 @@ export default function HomePage() {
             >
               <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-orange-500 to-rose-500"></div>
               
-              <div className="w-20 h-20 bg-orange-100 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 rounded-full mx-auto flex items-center justify-center font-bold text-xl mb-4 shadow border border-orange-200 dark:border-orange-500/10">
-                DS
+              <div className="relative w-20 h-20 mx-auto mb-4 group/img cursor-pointer">
+                {dbTeamProfiles['deepak'] ? (
+                  <div className="w-20 h-20 rounded-full overflow-hidden shadow border border-orange-200 dark:border-orange-500/10">
+                    <Image src={dbTeamProfiles['deepak']} alt="Deepak Soni" fill className="object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-20 h-20 bg-orange-100 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 rounded-full flex items-center justify-center font-bold text-xl shadow border border-orange-200 dark:border-orange-500/10">
+                    DS
+                  </div>
+                )}
+                {isAdminUser && (
+                  <label className="absolute inset-0 bg-black/50 rounded-full flex flex-col items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer">
+                    {uploadingProfile === 'deepak' ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Plus className="w-6 h-6 text-white" />
+                    )}
+                    <input type="file" accept="image/*" onChange={(e) => handleProfileUpload(e, 'deepak')} className="hidden" />
+                  </label>
+                )}
               </div>
 
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">Deepak Soni</h3>
@@ -1796,8 +1921,26 @@ export default function HomePage() {
             >
               <div className="absolute top-0 left-0 right-0 h-2 bg-blue-600"></div>
               
-              <div className="w-20 h-20 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-full mx-auto flex items-center justify-center font-bold text-xl mb-4 shadow border border-blue-200 dark:border-blue-500/10">
-                VS
+              <div className="relative w-20 h-20 mx-auto mb-4 group/img cursor-pointer">
+                {dbTeamProfiles['vinay'] ? (
+                  <div className="w-20 h-20 rounded-full overflow-hidden shadow border border-blue-200 dark:border-blue-500/10">
+                    <Image src={dbTeamProfiles['vinay']} alt="Vinay Soni" fill className="object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-20 h-20 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center font-bold text-xl shadow border border-blue-200 dark:border-blue-500/10">
+                    VS
+                  </div>
+                )}
+                {isAdminUser && (
+                  <label className="absolute inset-0 bg-black/50 rounded-full flex flex-col items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer">
+                    {uploadingProfile === 'vinay' ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Plus className="w-6 h-6 text-white" />
+                    )}
+                    <input type="file" accept="image/*" onChange={(e) => handleProfileUpload(e, 'vinay')} className="hidden" />
+                  </label>
+                )}
               </div>
 
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">Vinay Soni</h3>
@@ -1831,8 +1974,26 @@ export default function HomePage() {
             >
               <div className="absolute top-0 left-0 right-0 h-2 bg-violet-600"></div>
               
-              <div className="w-20 h-20 bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 rounded-full mx-auto flex items-center justify-center font-bold text-xl mb-4 shadow border border-violet-200 dark:border-violet-500/10">
-                SV
+              <div className="relative w-20 h-20 mx-auto mb-4 group/img cursor-pointer">
+                {dbTeamProfiles['satyam'] ? (
+                  <div className="w-20 h-20 rounded-full overflow-hidden shadow border border-violet-200 dark:border-violet-500/10">
+                    <Image src={dbTeamProfiles['satyam']} alt="Satyam Verma" fill className="object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-20 h-20 bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 rounded-full flex items-center justify-center font-bold text-xl shadow border border-violet-200 dark:border-violet-500/10">
+                    SV
+                  </div>
+                )}
+                {isAdminUser && (
+                  <label className="absolute inset-0 bg-black/50 rounded-full flex flex-col items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer">
+                    {uploadingProfile === 'satyam' ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Plus className="w-6 h-6 text-white" />
+                    )}
+                    <input type="file" accept="image/*" onChange={(e) => handleProfileUpload(e, 'satyam')} className="hidden" />
+                  </label>
+                )}
               </div>
 
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">Satyam Verma</h3>
@@ -1969,47 +2130,51 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {[
-              {
-                titleEn: "Shop Front View",
-                titleHi: "दुकान का मुख्य द्वार",
-                path: "/src/assets/images/shop_front_view_1780151941685.png",
-                cat: "Exterior"
-              },
-              {
-                titleEn: "Service Board",
-                titleHi: "सेवा सूची बोर्ड",
-                path: "/src/assets/images/service_board_view_1780152000905.png",
-                cat: "Catalog Sign"
-              },
-              {
-                titleEn: "Office Interior",
-                titleHi: "कार्यालय आंतरिक कक्ष",
-                path: "/src/assets/images/office_interior_view_1780151960409.png",
-                cat: "Working Desks"
-              },
-              {
-                titleEn: "Customer Service Area",
-                titleHi: "ग्राहक सेवा क्षेत्र",
-                path: "/src/assets/images/customer_service_view_1780151980979.png",
-                cat: "Lounge Area"
-              }
-            ].map((img, idx) => (
+            {isAdminUser && (
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                className={cn(
+                  "rounded-2xl overflow-hidden border p-3 flex flex-col items-center justify-center cursor-pointer group shadow-sm bg-gray-50 dark:bg-slate-800/50 min-h-[250px]",
+                  darkMode ? "border-slate-700" : "border-dashed"
+                )}
+              >
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleGalleryUpload} 
+                  className="hidden" 
+                  id="admin-gallery-upload"
+                  disabled={uploadingGallery}
+                />
+                <label htmlFor="admin-gallery-upload" className="cursor-pointer text-center flex flex-col items-center p-6 w-full h-full justify-center">
+                  {uploadingGallery ? (
+                    <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4" />
+                  ) : (
+                    <Plus className="w-10 h-10 text-orange-500 mb-2 opacity-50 group-hover:opacity-100 transition-opacity" />
+                  )}
+                  <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                    {uploadingGallery ? 'Uploading...' : 'Add Image'}
+                  </span>
+                </label>
+              </motion.div>
+            )}
+            
+            {dbGalleryImages.map((img, idx) => (
               <motion.div
                 whileHover={{ scale: 1.03 }}
                 onClick={() => {
-                  setLightboxImage(img.path);
+                  setLightboxImage(img.base64Image);
                   setLightboxTitle(lang === 'en' ? img.titleEn : img.titleHi);
                 }}
-                key={idx}
+                key={img.id}
                 className={cn(
-                  "rounded-2xl overflow-hidden border p-3 cursor-zoom-in group shadow-sm bg-white dark:bg-slate-900",
+                  "rounded-2xl overflow-hidden border p-3 cursor-zoom-in group shadow-sm bg-white dark:bg-slate-900 relative",
                   darkMode ? "border-slate-800" : "border-gray-200"
                 )}
               >
                 <div className="h-48 rounded-xl overflow-hidden relative">
                   <Image
-                    src={img.path}
+                    src={img.base64Image}
                     alt={img.titleEn}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -2018,10 +2183,23 @@ export default function HomePage() {
                   <div className="absolute top-2 left-2 px-2.5 py-0.5 bg-slate-900/80 text-white rounded-full text-[9px] font-bold font-mono tracking-wider">
                     {img.cat}
                   </div>
+                  {isAdminUser && (
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteDoc(doc(db, 'galleryImages', img.id));
+                      }}
+                      className="absolute top-2 right-2 p-1.5 bg-red-500/80 text-white rounded-full hover:bg-red-500 transition-colors z-10"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
-                <div className="pt-3 px-1">
-                  <h4 className="text-xs md:text-sm font-bold text-gray-900 dark:text-white">{lang === 'en' ? img.titleEn : img.titleHi}</h4>
-                  <span className="text-[10px] text-gray-500 font-mono">Verified Center Asset</span>
+                <div className="pt-3 px-1 flex justify-between items-start">
+                  <div>
+                    <h4 className="text-xs md:text-sm font-bold text-gray-900 dark:text-white">{lang === 'en' ? img.titleEn : img.titleHi}</h4>
+                    <span className="text-[10px] text-gray-500 font-mono">Verified Center Asset</span>
+                  </div>
                 </div>
               </motion.div>
             ))}

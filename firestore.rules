@@ -45,5 +45,35 @@ service cloud.firestore {
       allow update: if isValidId(appointmentId) && isAdmin() && isValidAppointment(request.resource.data);
       allow delete: if isValidId(appointmentId) && isAdmin();
     }
+    function isValidGalleryImage(data) {
+      return data.keys().hasAll(['id', 'titleEn', 'titleHi', 'cat', 'base64Image'])
+        && data.id is string && data.id.size() <= 100
+        && data.titleEn is string && data.titleEn.size() <= 100
+        && data.titleHi is string && data.titleHi.size() <= 100
+        && data.cat is string && data.cat.size() <= 50
+        && data.base64Image is string;
+    }
+
+    match /galleryImages/{imageId} {
+      allow get: if isValidId(imageId);
+      allow list: if true;
+      allow create: if isValidId(imageId) && isAdmin() && isValidGalleryImage(request.resource.data);
+      allow update: if isValidId(imageId) && isAdmin() && isValidGalleryImage(request.resource.data);
+      allow delete: if isValidId(imageId) && isAdmin();
+    }
+
+    function isValidTeamProfile(data) {
+      return data.keys().hasAll(['id', 'base64Image'])
+        && data.id is string && data.id.size() <= 100
+        && data.base64Image is string;
+    }
+
+    match /teamProfiles/{profileId} {
+      allow get: if isValidId(profileId);
+      allow list: if true;
+      allow create: if isValidId(profileId) && isAdmin() && isValidTeamProfile(request.resource.data);
+      allow update: if isValidId(profileId) && isAdmin() && isValidTeamProfile(request.resource.data);
+      allow delete: if isValidId(profileId) && isAdmin();
+    }
   }
 }
